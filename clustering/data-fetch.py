@@ -67,6 +67,23 @@ def safe_list(x):
         return [x]
     return [str(x)]
 
+# Load branches mapping from branches.json (same directory)
+branches_file = os.path.join(os.getcwd(), "branches.json")
+branch_map = {}
+try:
+    with open(branches_file, "r", encoding="utf-8") as bf:
+        branches_list = json.load(bf)
+        for entry in branches_list:
+            code = entry.get("code")
+            name = entry.get("name")
+            if code and name:
+                branch_map[str(code).lower()] = name
+except FileNotFoundError:
+    # If branches.json is missing, branch_map stays empty and we fallback to doc branch
+    print(f"Warning: {branches_file} not found. Will use branch from dataset when mapping unavailable.")
+except Exception as e:
+    print(f"Warning: failed to load {branches_file}: {e}. Will use branch from dataset when mapping unavailable.")
+
 juniors = []
 seniors = []
 
@@ -75,7 +92,24 @@ for doc in docs:
     if not isinstance(roll, str):
         roll = str(roll)
 
-    branch = doc.get("branch", "")
+    # Determine branch from rollnum using branches.json mapping.
+    # Roll format expected: XXXXCCXX -> course code at positions 4:6
+    branch_from_doc = doc.get("branch", "")  # fallback
+    branch = branch_from_doc  # default
+    try:
+        code = roll.strip()[4:6].lower() if len(roll.strip()) >= 6 else ""
+        if code:
+            mapped = branch_map.get(code)
+            if mapped:
+                branch = mapped
+            else:
+                # fallback to dataset branch if mapping not found
+                branch = branch_from_doc
+        else:
+            branch = branch_from_doc
+    except Exception:
+        branch = branch_from_doc
+
     phys_chem_sem = doc.get("active_sem") or ""
     core_nonCore = doc.get("domain")
     languages_list = safe_list(doc.get("languages"))

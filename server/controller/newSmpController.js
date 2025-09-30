@@ -1,5 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
+import path from "path";
+import fs from "fs/promises";            // modern promise-based fs
+import { fileURLToPath } from "url";     // to get __dirname in ESM
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 function getRollNumber(preferred_username) {
   const mailParts = preferred_username.split("@")[0].split("_");
@@ -163,5 +169,56 @@ async function submitDetails(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
-export default { submitDetails, getDetails, resetDetails, checkStud };
+
+async function getCluster(req, res) {
+  const rollnum = getRollNumber(req.auth.preferred_username);
+  const token = req.headers['X-Alloc8-IDToken']
+  const body = req.body;
+  const name = req.auth.name
+
+  function normalizeRoll(r) {
+    if (r === null || r === undefined) return "";
+    return String(r).trim().toLowerCase();
+  }
+
+  try {
+    const clustersPath = path.resolve(__dirname, "../data/clusters.json");
+    const raw = await fs.readFile(clustersPath, "utf8");
+    const parsed = JSON.parse(raw);
+
+    const targetRoll = normalizeRoll(rollnum);
+    if (!targetRoll) {
+      return res.status(400).json({ error: "Could not determine roll number from auth info." });
+    }
+
+    console.log(`Fetching Cluster for ${targetRoll}`)
+    const clusterHasRoll = (clusterObj) => {
+      if (!clusterObj || !Array.isArray(clusterObj.members)) return false;
+      return clusterObj.members.some((m) => normalizeRoll(m.roll) === targetRoll);
+    };
+
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      for (const [clusterId, clusterObj] of Object.entries(parsed)) {
+        if (clusterHasRoll(clusterObj)) {
+          return res.status(200).json({
+            found: true,
+            clusterId,
+            cluster: clusterObj,
+          });
+        }
+      }
+    }
+
+    // not found
+    return res.status(404).json({
+      found: false,
+      message: `No cluster found containing roll ${rollnum}`,
+    });
+  } catch (err) {
+    console.error("getCluster error:", err);
+    return res.status(500).json({ error: err.message || "Internal server error" });
+  }
+}
+
+export default { submitDetails, getDetails, resetDetails, checkStud, getCluster};
 /* vi: set et sw=2: */
