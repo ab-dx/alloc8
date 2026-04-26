@@ -31,7 +31,7 @@ const app = express();
 
 // Middleware
 
-app.use(cors({ origin: ["https://alloc8.in", "https://mock.alloc8.in", "https://piedras.alloc8.in", "https://bihta.alloc8.in" ] }));
+app.use(cors({ origin: ["https://alloc8.in", "https://mock.alloc8.in", "https://piedras.alloc8.in", "https://bihta.alloc8.in", "http://localhost:5173"] }));
 app.set("pems", []);
 fetch(
     "https://login.microsoftonline.com/a57f7d92-038e-4d4c-8265-7cd2beb33b34/discovery/v2.0/keys"
@@ -39,21 +39,23 @@ fetch(
     .then((response) => response.json())
     .then((jwks) => jwks.keys)
     .then((keys) => {
+        app.locals.keys = keys
         app.set("keys", keys);
         keys.forEach((jwk) => {
-		let pems = app.get("pems");
-		pems.push(jwkToPem(jwk));
-		app.set("pems", pems);
-	});
+            let pems = app.get("pems");
+            pems.push(jwkToPem(jwk));
+            app.set("pems", pems);
+            app.locals.pems = pems
+        });
     });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.get('/', (req, res) => res.send('hi'))
 // app.use("/api/fresher", fresherRoutes);
 app.use("/api/nonfresher", nonfresherRoutes);
-// app.use("/api/smp", smpRoutes);
+app.use("/api/smp", smpRoutes);
 const PORT = process.env.PORT || 8500;
 app.listen(PORT, () => {
-  console.log("Connected to Backend on Port", PORT);
+    console.log("Connected to Backend on Port", PORT);
 });

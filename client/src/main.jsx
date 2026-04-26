@@ -19,6 +19,8 @@ import Header from "@/components/Header";
 import { MsalProvider } from "@azure/msal-react";
 import { PublicClientApplication, EventType } from "@azure/msal-browser";
 import { msalConfig } from "./authConfig.js";
+import SMPPage from "./pages/SMP";
+import GetSMP from "./pages/getSMP";
 // import SmpForm from "./components/SmpForm";
 
 const router = createBrowserRouter([
@@ -40,14 +42,24 @@ const router = createBrowserRouter([
         element: <Others />,
         errorElement: <Error />,
       },
-     /* {
-        path: "/smpform",
-        element: <><Header /><SmpForm /></>,
-        errorElement: <Error />,
-      }, */
+      /* {
+         path: "/smpform",
+         element: <><Header /><SmpForm /></>,
+         errorElement: <Error />,
+       }, */
       {
         path: "/success",
         element: <Success />,
+        errorElement: <Error />,
+      },
+      {
+        path: "/smp",
+        element: <SMPPage />,
+        errorElement: <Error />,
+      },
+      {
+        path: "/getSMP",
+        element: <GetSMP />,
         errorElement: <Error />,
       },
       /* {
@@ -77,16 +89,16 @@ const msalInstance = new PublicClientApplication(msalConfig);
 
 // Default to using the first account if no account is active on page load
 if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0) {
-    // Account selection logic is app dependent. Adjust as needed for different use cases.
-    msalInstance.setActiveAccount(msalInstance.getAllAccounts()[0]);
+  // Account selection logic is app dependent. Adjust as needed for different use cases.
+  msalInstance.setActiveAccount(msalInstance.getAllAccounts()[0]);
 }
 
 // Listen for sign-in event and set active account
 msalInstance.addEventCallback((event) => {
-    if (event.eventType === EventType.LOGIN_SUCCESS && event.payload.account) {
-        const account = event.payload.account;
-        msalInstance.setActiveAccount(account);
-    }
+  if (event.eventType === EventType.LOGIN_SUCCESS && event.payload.account) {
+    const account = event.payload.account;
+    msalInstance.setActiveAccount(account);
+  }
 });
 
 msalInstance.initialize().then(() => {

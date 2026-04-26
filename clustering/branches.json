@@ -1,0 +1,21 @@
+[
+  {"name":"Chemical Engineering","code":"cb"},
+  {"name":"Chemical Science and Technology","code":"ct"},
+  {"name":"Civil Engineering","code":"ce"},
+  {"name":"Civil Engineering","code":"st"},
+  {"name":"Civil Engineering","code":"GT"},
+  {"name":"Computer Science and Engineering","code":"cs"},
+  {"name":"Electronics and Communication Engineering","code":"ee"},
+  {"name":"Electronics and Communication Engineering","code":"pc"},
+  {"name":"Electronics and Communication Engineering","code":"cm"},
+  {"name":"Engineering Physics","code":"ph"},
+  {"name":"Mathematics and Computing","code":"mc"},
+  {"name":"Mechanical Engineering","code":"me"},
+  {"name":"Mechanical Engineering","code":"mt"},
+  {"name":"Metallurgical and Materials Engineering","code":"mm"},
+  {"name":"Electrical and Electronics Engineering","code":"ec"},
+  {"name":"Electrical and Electronics Engineering","code":"vl"},
+  {"name":"Artificial Intelligence and Data Science","code":"ai"},
+  {"name":"B.S. in Economics","code":"es"},
+  {"name":"Artificial Intelligence and Data Science","code":"pr"}
+]

@@ -57,13 +57,13 @@ model smpDetails {
   id String @id @default(auto()) @map("_id") @db.ObjectId
   rollnum String @unique
   branch String
-  placeOfLiving String
-  motherTongue String[]
-  sportsHobbies String
-  techHobbies String
-  culturalHobbies String
-  nature String
-  futureInterests String
-  cpi String
-  remarks String
+  domain String
+  goals String
+  active_sem String?
+  languages     String[] 
+  tech_interests String[]
+  sports        String[] 
+  cult_interests String[]
+  hobbies       String[] 
+  name          String
 }

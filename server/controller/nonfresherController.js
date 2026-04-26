@@ -24,7 +24,7 @@ async function showDetails(req, res) {
       where: { rollnum: rollnum },
     });
     if (!student) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: "Student not found" });
       return;
     }
     const room = await prisma.rooms.findUnique({
