@@ -19,8 +19,9 @@ import Header from "@/components/Header";
 import { MsalProvider } from "@azure/msal-react";
 import { PublicClientApplication, EventType } from "@azure/msal-browser";
 import { msalConfig } from "./authConfig.js";
-import SMPPage from "./pages/SMP";
-import GetSMP from "./pages/getSMP";
+// SMP allocation disabled — comment out these imports to disable SMP pages
+// import SMPPage from "./pages/SMP";
+// import GetSMP from "./pages/getSMP";
 // import SmpForm from "./components/SmpForm";
 
 const router = createBrowserRouter([
@@ -52,7 +53,8 @@ const router = createBrowserRouter([
         element: <Success />,
         errorElement: <Error />,
       },
-      {
+      // SMP allocation disabled
+      /* {
         path: "/smp",
         element: <SMPPage />,
         errorElement: <Error />,
@@ -61,7 +63,7 @@ const router = createBrowserRouter([
         path: "/getSMP",
         element: <GetSMP />,
         errorElement: <Error />,
-      },
+      }, */
       /* {
         path: "/waiting",
         element: <WaitingPage />,

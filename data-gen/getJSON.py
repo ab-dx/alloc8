@@ -1,21 +1,16 @@
 import json
-from strictyaml import load, Map, MapPattern, Str, Int, Seq, YAMLError
+import yaml
 
 batches: tuple[str] = "btech22", "btech23", "btech24", "phd19", "phd20" # Define batches here
 genders = "male", "female"
 blocks = "A", "B", "C", "D" # Define blocks here
 hostels = "Aryabhatta", "Kalam", "Asima" # Define hostels here
-schema = MapPattern(Str(), MapPattern(Str(), Map(
-    {
-        "capacity": Int(),
-        "hostels": MapPattern(Str(), MapPattern(Str(), Seq(Str())))
-    }
-)))
 batches_to_genders = {}
 with open("hostel_choice.yaml") as fin:
     try:
-        data = load(fin.read(), schema).data
-    except YAMLError as error:
+        data = yaml.safe_load(fin)
+
+    except yaml.YAMLError as error:
         print(error)
         exit()
     for batch in data:
@@ -25,7 +20,7 @@ with open("hostel_choice.yaml") as fin:
         batches_to_genders[batch] = []
         for gender in data[batch]:
             if gender not in genders or data[batch][gender]["capacity"] < 1:
-                print(f"Invalid gender {gender} or capacity {data[batch][gender]["capacity"]}")
+                print(f"Invalid gender {gender} or capacity {data[batch][gender]['capacity']}")
                 exit()
             batches_to_genders[batch].append(gender)
             for hostel in data[batch][gender]["hostels"]:
@@ -42,7 +37,7 @@ with open("hostel_choice.yaml") as fin:
                         if (roomRange[0][0] != roomRange[1][0]):
                             print(f"Invalid room range {roomRange[0]}-{roomRange[1]}")
                             exit()
-                        numRooms += int(roomRange[1])-int(roomRange[0])+1
+                        numRooms += int(roomRange[1][1:])-int(roomRange[0][1:])+1
                     print(batch, gender, hostel, block, numRooms)
     with open("available_rooms.json", "w") as fout:
         json.dump(data, fout)

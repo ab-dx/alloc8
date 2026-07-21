@@ -223,7 +223,7 @@ const FloorAndRoom = ({
       return;
     }
     const postBody = {
-      hostel: hostel.toLowerCase(),
+      hostel: hostel,
       floor: floor.toString(),
     };
 
@@ -441,6 +441,7 @@ const FloorAndRoom = ({
 };
 const OthersRoomAllocPage = () => {
   const { instance } = useMsal();
+  const navigate = useNavigate();
   const [idToken, setIdToken] = useState();
   const [ name, setName ] = useState();
   const [ availableRooms, setAvailableRooms ] = useState([]);
@@ -450,12 +451,18 @@ const OthersRoomAllocPage = () => {
     instance.acquireTokenSilent(request).then(tokenResponse => {
       setIdToken(tokenResponse.idToken);
       setName(tokenResponse.idTokenClaims.name);
-      const { batch, gender } = emailmap[tokenResponse.idTokenClaims.email];
+      const emailEntry = emailmap[tokenResponse.idTokenClaims.preferred_username];
+      if (!emailEntry) {
+        alert("Your email is not authorized for room booking.");
+        navigate("/");
+        return;
+      }
+      const { batch, gender } = emailEntry;
       setAvailableRooms(hostel_data[batch][gender]["hostels"]);
     }).catch(async (error) => {
       if (error instanceof InteractionRequiredAuthError) {
         // fallback to interaction when silent call fails
-        return msalInstance.acquireTokenRedirect(request);
+        return instance.acquireTokenRedirect(request);
       } else if (error instanceof BrowserAuthError) {
         navigate("/");
         return;
@@ -489,7 +496,7 @@ const OthersRoomAllocPage = () => {
         return (
           <FloorAndRoom
             activeStep={1}
-            data={availableRooms[hostel.toLowerCase()]}
+            data={availableRooms[hostel]}
             hostel={hostel}
             idToken={idToken}
             onPrev={() => {

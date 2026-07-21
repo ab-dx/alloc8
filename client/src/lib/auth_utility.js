@@ -1,6 +1,7 @@
 function getRollNumber(idTokenClaims) {
   if (!idTokenClaims) return "";
-  let emailId = idTokenClaims.email;
+  let emailId = idTokenClaims.email || idTokenClaims.preferred_username;
+  if (!emailId) return "";
   const mailParts = emailId.split("@")[0].split("_");
   const rollNumber =
     mailParts[0].startsWith("2")

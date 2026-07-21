@@ -30,9 +30,10 @@ const HomePage = () => {
     digestMessage(searchParams.get("pass") || "").then((digestHex) => setDigestHex(digestHex));
   }, [searchParams]);
 
+  // Redirect to hostel selection page once authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/getSMP");
+      navigate("/allotroom");
     }
   }, [isAuthenticated]);
 
@@ -55,9 +56,11 @@ const HomePage = () => {
         <span className="w-full text-center">
           Hostel/SMP Allotment Platform of IIT Patna
         </span>
-        <form className="w-full">
+        {/* Using div instead of form to prevent default form submit from interfering with MSAL redirect */}
+        <div className="w-full">
           <div className="w-full flex justify-center items-center mt-8">
             <Button
+              type="button"
               onClick={initializeSignIn}
               className="flex items-center justify-center font-segoe-ui font-light text-[15px] bg-[#2f2f2f] text-white h-[45px] px-4 rounded-sm hover:bg-[#0e0202] transition duration-300 "
             >
@@ -65,7 +68,7 @@ const HomePage = () => {
               Sign In with Microsoft
             </Button>
           </div>
-        </form>
+        </div>
       </div>
       <Footer></Footer>
     </div>

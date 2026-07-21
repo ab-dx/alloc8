@@ -69,7 +69,7 @@ async function showDetails(req, res) {
         room: student.room,
         occupancy: student.occupancy,
         roommates,
-        roommateCode: room.roommateCode,
+        roommateCode: room?.roommateCode,
       });
     } else {
       res.status(400).json({ error: "kindly wait for allocation!" });
@@ -108,7 +108,7 @@ async function getRoom(req, res) {
     let i;
     for (i = 0; i < validRooms.length; i++) {
       let room = validRooms[i];
-      if (room.roommateCode && room.roommateCode.length != 0) {
+    if (room && room.roommateCode && room.roommateCode.length != 0) {
         const codeGeneratedAt = new Date(room.codeGeneratedAt);
         const codeExpiryTime = new Date(
           codeGeneratedAt.getTime() + codeExpiryDelta

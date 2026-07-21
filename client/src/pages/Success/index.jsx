@@ -26,7 +26,7 @@ const SuccessPage = () => {
     }).catch(async (error) => {
       if (error instanceof InteractionRequiredAuthError) {
         // fallback to interaction when silent call fails
-        return msalInstance.acquireTokenRedirect(request);
+        return instance.acquireTokenRedirect(request);
       } else if (error instanceof BrowserAuthError) {
         navigate("/");
         return;
@@ -57,6 +57,12 @@ const SuccessPage = () => {
         }
         setLoading(false);
         setStudData(data);
+      })
+      .catch((error) => {
+        console.error(error);
+        setLoading(false);
+        alert("Failed to fetch room details. Please try again.");
+        navigate("/allotroom");
       })
   }, [idToken]);
 

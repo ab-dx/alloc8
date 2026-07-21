@@ -5,47 +5,53 @@ import jwt from "jsonwebtoken";
 import emailmap from "../../data-gen/email_map.json" with { type: "json" };
 
 router.use(async (req, res, next) => {
-  const token = req.get("X-Alloc8-IDToken");
-  if (token == undefined) {
-    res.sendStatus(401);
-    return;
-  }
+	const token = req.get("X-Alloc8-IDToken");
+	if (token == undefined) {
+		res.sendStatus(401);
+		return;
+	}
 
-  const keys = req.app.get("keys");
-  const pems = req.app.get("pems");
-  const myjwt = jwt.decode(token, { complete: true });
-  if (myjwt == null) {
-    res.sendStatus(401);
-    return;
-  }
-  const kid = myjwt.header.kid;
-  let i;
-  for (i = 0; i < keys.length; i++) {
-    if (keys[i].kid == kid) break;
-  }
-  try {
-    const jwt = jwt.verify(token, pems[i], {
-      algorithms: "RS256",
-      audience: process.env.AUDIENCE,
-      issuer:
-        "https://login.microsoftonline.com/a57f7d92-038e-4d4c-8265-7cd2beb33b34/v2.0",
-    });
+	const keys = req.app.get("keys");
+	const pems = req.app.get("pems");
+	const myjwt = jwt.decode(token, { complete: true });
+	if (myjwt == null) {
+		res.sendStatus(401);
+		return;
+	}
+	const kid = myjwt.header.kid;
+	let i;
+	for (i = 0; i < keys.length; i++) {
+		if (keys[i].kid == kid) break;
+	}
+	try {
+		// Bug fix: renamed from `const jwt` to `const decoded` to avoid shadowing the jwt import
+		const decoded = jwt.verify(token, pems[i], {
+			algorithms: "RS256",
+			audience: process.env.AUDIENCE,
+			issuer:
+				"https://login.microsoftonline.com/a57f7d92-038e-4d4c-8265-7cd2beb33b34/v2.0",
+		});
 
-    let email = jwt.email;
-    if (!Object.keys(emailmap).includes(email) && emailmap[email]["rollNumber"].startsWith("24")) {
-        console.error("Invalid email: ", email);
-        res.status(401).json({ error: "Invalid email" });
-        return;
-    }
-    res.locals.batch = emailmap[email]["batch"]
-    res.locals.gender = emailmap[email]["gender"]
-    res.locals.rollNumber = emailmap[email]["rollNumber"]
-    res.locals.name = jwt.name;
-    next();
-  } catch (e) {
-    console.error(e);
-    res.sendStatus(401);
-  }
+		let email = decoded.preferred_username;
+		if (!Object.keys(emailmap).includes(email)) {
+			console.error("Invalid email: ", email);
+			res.status(401).json({ error: "Invalid email" });
+			return;
+		}
+		if (emailmap[email]["rollNumber"].startsWith("26")) {
+			console.error("Fresher email in non-fresher flow: ", email);
+			res.status(401).json({ error: "Invalid email" });
+			return;
+		}
+		res.locals.batch = emailmap[email]["batch"];
+		res.locals.gender = emailmap[email]["gender"];
+		res.locals.rollNumber = emailmap[email]["rollNumber"];
+		res.locals.name = decoded.name;
+		next();
+	} catch (e) {
+		console.error(e);
+		res.sendStatus(401);
+	}
 });
 
 //if allocated then get this and show to client

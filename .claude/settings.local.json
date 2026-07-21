@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s http://localhost:8500/)",
+      "Bash(curl -s http://localhost:8500/api/nonfresher/getRoom -X POST -H \"Content-Type: application/json\" -d '{\"hostel\":\"Kalam\",\"floor\":\"A\"}')"
+    ]
+  }
+}
